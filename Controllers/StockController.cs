@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using api.Data;
+using api.Dto.Stock;
+using api.Mappers;
+using api.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers
 {
@@ -22,7 +21,8 @@ namespace api.Controllers
         public IActionResult GetAll()
         {
             var stocks = _db.Stocks.ToList();
-            return Ok(stocks);
+            IEnumerable<StockDto> enumerable = stocks.Select(s => s.ToStockDto());
+            return Ok(enumerable);
         }
 
         [HttpGet("{id}")]
@@ -33,7 +33,21 @@ namespace api.Controllers
             {
                 return NotFound();
             }
-            return Ok(stock);
+            return Ok(stock.ToStockDto());
+        }
+        [HttpPost]
+        public IActionResult Create([FromBody] CreateStockRequestDto stockDto)
+        {
+            var stockModel = stockDto.ToStock();
+            _db.Stocks.Add(stockModel);
+            _db.SaveChanges();
+             return CreatedAtAction(
+                nameof(GetById),
+                new { id = stockModel.Id },
+                stockModel.ToStockDto()
+                );
+
+
         }
     }
 }
