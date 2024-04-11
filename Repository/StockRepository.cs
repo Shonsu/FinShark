@@ -22,14 +22,14 @@ namespace api.Repository
 
         public async Task<Stock> CreateAsync(Stock stockModel)
         {
-            await _context.Stock.AddAsync(stockModel);
+            await _context.Stocks.AddAsync(stockModel);
             await _context.SaveChangesAsync();
             return stockModel;
         }
 
         public async Task<Stock?> DeleteAsync(int id)
         {
-            var stockModel = await _context.Stock.FirstOrDefaultAsync(s => s.Id == id);
+            var stockModel = await _context.Stocks.FirstOrDefaultAsync(s => s.Id == id);
             if (stockModel == null)
             {
                 return null;
@@ -41,17 +41,17 @@ namespace api.Repository
 
         public async Task<List<Stock>> GetAllAsync()
         {
-            return await _context.Stock.ToListAsync();
+            return await _context.Stocks.Include(s => s.Comments).ToListAsync();
         }
 
         public async Task<Stock?> GetByIdAsync(int id)
         {
-            return await _context.Stock.FindAsync(id);
+            return await _context.Stocks.Include(s => s.Comments).FirstOrDefaultAsync(s => s.Id == id);
         }
 
         public async Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto stockDto)
         {
-            var existingStock = await _context.Stock.FirstOrDefaultAsync(s => s.Id == id);
+            var existingStock = await _context.Stocks.FirstOrDefaultAsync(s => s.Id == id);
             if (existingStock == null)
             {
                 return null;
