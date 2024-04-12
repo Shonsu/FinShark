@@ -41,12 +41,12 @@ namespace api.Repository
 
         public async Task<List<Stock>> GetAllAsync()
         {
-            return await _context.Stocks.Include(s => s.Comments).ToListAsync();
+            return await _context.Stocks.Include(s => s.Comments).AsNoTracking().ToListAsync();
         }
 
         public async Task<Stock?> GetByIdAsync(int id)
         {
-            return await _context.Stocks.Include(s => s.Comments).FirstOrDefaultAsync(s => s.Id == id);
+            return await _context.Stocks.Include(s => s.Comments).AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
         }
 
         public async Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto stockDto)

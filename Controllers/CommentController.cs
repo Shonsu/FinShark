@@ -40,18 +40,29 @@ namespace api.Controllers
             return Ok(comment.ToCommentDto());
         }
 
-        [HttpPost("{sotckId}")]
-        public async Task<IActionResult> Create([FromRoute] int stockId,
+        [HttpPost("{commentId}")]
+        public async Task<IActionResult> Create([FromRoute] int commentId,
          [FromBody] CreateCommentRequestDto commentRequestDto)
         {
-            if (!await _stockRepo.StockExist(stockId))
+            if (!await _stockRepo.StockExist(commentId))
             {
                 return BadRequest("Stock does not exist");
             }
-            var commentModel = commentRequestDto.ToComment(stockId);
-            //commentModel.
-            Models.Comment comment = await _commentRepo.CreateAsync(commentModel);
+            var commentModel = commentRequestDto.ToComment(commentId);
+
+            var comment = await _commentRepo.CreateAsync(commentModel);
             return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment.ToCommentDto());
+        }
+
+        [HttpPut("{commentId}")]
+        public async Task<IActionResult> Update(int commentId, [FromBody] UpdateCommentRequestDto updateCommentDto)
+        {
+            var comment = await _commentRepo.UpdateAsync(commentId, updateCommentDto);
+            if (comment == null)
+            {
+                return NotFound("Comment noit found");
+            }
+            return Ok(comment.ToCommentDto());
         }
     }
 }

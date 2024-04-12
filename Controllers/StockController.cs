@@ -61,6 +61,7 @@ namespace api.Controllers
             }
             return Ok(stock.ToStockDto());
         }
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletyeById(int id)
         {

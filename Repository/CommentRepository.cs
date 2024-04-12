@@ -41,9 +41,18 @@ namespace api.Repository
             return await _context.Comments.FindAsync(id);
         }
 
-        public Task<Comment?> UpdateAsync(int id, UpdateCommentRequestDto commentDto)
+        public async Task<Comment?> UpdateAsync(int id, UpdateCommentRequestDto commentDto)
         {
-            throw new NotImplementedException();
+            var existingComment = await _context.Comments.FirstOrDefaultAsync(s => s.Id == id);//FindAsync(id);
+            if (existingComment == null)
+            {
+                return null;
+            }
+            _context.Entry(existingComment).CurrentValues.SetValues(commentDto);
+            // existingComment.Title = commentModel.Title;
+            // existingComment.Content = commentModel.Content;
+            await _context.SaveChangesAsync();
+            return existingComment;
         }
     }
 }
