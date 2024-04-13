@@ -42,14 +42,18 @@ namespace api.Repository
 
         public async Task<List<Stock>> GetAllAsync(QueryObject query)
         {
+            System.Console.WriteLine("symbol: {0},\n companyname: {1}", query.Symbol, query.CompanyName);
+
             IQueryable<Stock> stocks = _context.Stocks.Include(s => s.Comments).AsNoTracking().AsQueryable();
             if (!string.IsNullOrWhiteSpace(query.CompanyName))
             {
-                stocks.Where(s => s.CompanyName == query.CompanyName);
+                System.Console.WriteLine("query company name: {0}", query.CompanyName);
+                stocks = stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
             }
             if (!string.IsNullOrWhiteSpace(query.Symbol))
             {
-                stocks.Where(s => s.Symbol == query.Symbol);
+                System.Console.WriteLine("query symbol: {0}", query.Symbol);
+                stocks = stocks.Where(s => s.Symbol.Contains(query.Symbol));
             }
             return await stocks.ToListAsync();
         }
