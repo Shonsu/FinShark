@@ -23,9 +23,9 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] QueryObject query, [FromQuery] QueryPageableParams pageableParams)
+        public async Task<IActionResult> GetAll([FromQuery] QueryStockObject query)
         {
-            var stocks = await _stockRepo.GetAllAsync(query, pageableParams);
+            var stocks = await _stockRepo.GetAllAsync(query);
             var metadata = new
             {
                 stocks.CurrentPage,

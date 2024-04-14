@@ -11,7 +11,7 @@ namespace api.Interfaces
 {
     public interface IStockRepository
     {
-        Task<PagedList<Stock>> GetAllAsync(QueryObject query, QueryPageableParams pageableParams);
+        Task<PagedList<Stock>> GetAllAsync(QueryStockObject query);
         Task<Stock?> GetByIdAsync(int id);  //FirstOrDefault
         Task<Stock> CreateAsync(Stock stockModel);
         Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto stockDto);

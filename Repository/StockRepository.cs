@@ -42,7 +42,7 @@ namespace api.Repository
             return stockModel;
         }
 
-        public async Task<PagedList<Stock>> GetAllAsync(QueryObject query, QueryPageableParams queryPageable)
+        public async Task<PagedList<Stock>> GetAllAsync(QueryStockObject query)
         {
             IQueryable<Stock> stocks = _context.Stocks.Include(s => s.Comments).AsNoTracking().AsQueryable();
             if (!string.IsNullOrWhiteSpace(query.CompanyName))
@@ -57,7 +57,7 @@ namespace api.Repository
             {
                 stocks = stocks.OrderByDynamic(query.SortBy, !query.IsDescending ? "ASC" : "DESC");
             }
-            return await PagedList<Stock>.ToPagedList(stocks, queryPageable.PageNumber, queryPageable.PageSize);
+            return await PagedList<Stock>.ToPagedList(stocks, query.PageNumber, query.PageSize);
         }
 
         public async Task<Stock?> GetByIdAsync(int id)
