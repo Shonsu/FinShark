@@ -50,14 +50,12 @@ namespace api.Repository
 
         public async Task<Comment?> UpdateAsync(int id, UpdateCommentRequestDto commentDto)
         {
-            var existingComment = await _context.Comments.FirstOrDefaultAsync(s => s.Id == id);//FindAsync(id);
+            var existingComment = await _context.Comments.FirstOrDefaultAsync(s => s.Id == id);
             if (existingComment == null)
             {
                 return null;
             }
             _context.Entry(existingComment).CurrentValues.SetValues(commentDto);
-            // existingComment.Title = commentModel.Title;
-            // existingComment.Content = commentModel.Content;
             await _context.SaveChangesAsync();
             return existingComment;
         }
