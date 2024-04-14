@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using api.Controllers;
+using api.Controllers.Dto;
 using api.Data;
 using api.Dto.Stock;
 using api.Interfaces;
@@ -41,26 +42,22 @@ namespace api.Repository
             return stockModel;
         }
 
-        public async Task<List<Stock>> GetAllAsync(QueryObject query)
+        public async Task<PagedList<Stock>> GetAllAsync(QueryObject query, QueryPageableParams queryPageable)
         {
-            System.Console.WriteLine("symbol: {0},\n companyname: {1}", query.Symbol, query.CompanyName);
-
             IQueryable<Stock> stocks = _context.Stocks.Include(s => s.Comments).AsNoTracking().AsQueryable();
             if (!string.IsNullOrWhiteSpace(query.CompanyName))
             {
-                System.Console.WriteLine("query company name: {0}", query.CompanyName);
                 stocks = stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
             }
             if (!string.IsNullOrWhiteSpace(query.Symbol))
             {
-                System.Console.WriteLine("query symbol: {0}", query.Symbol);
                 stocks = stocks.Where(s => s.Symbol.Contains(query.Symbol));
             }
             if (!string.IsNullOrWhiteSpace(query.SortBy))
             {
                 stocks = stocks.OrderByDynamic(query.SortBy, !query.IsDescending ? "ASC" : "DESC");
             }
-            return await stocks.ToListAsync();
+            return await PagedList<Stock>.ToPagedList(stocks, queryPageable.PageNumber, queryPageable.PageSize);
         }
 
         public async Task<Stock?> GetByIdAsync(int id)

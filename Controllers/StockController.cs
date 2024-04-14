@@ -1,4 +1,6 @@
 
+using System.Text.Json;
+using api.Controllers.Dto;
 using api.Data;
 using api.Dto.Stock;
 using api.Interfaces;
@@ -21,9 +23,19 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query, [FromQuery] QueryPageableParams pageableParams)
         {
-            var stocks = await _stockRepo.GetAllAsync(query);
+            var stocks = await _stockRepo.GetAllAsync(query, pageableParams);
+            var metadata = new
+            {
+                stocks.CurrentPage,
+                stocks.TotalPages,
+                stocks.PageSize,
+                stocks.TotalCount,
+                stocks.HasPrevious,
+                stocks.HasNext
+            };
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
             var stockDtos = stocks.Select(s => s.ToStockDto());
             return Ok(stockDtos);
         }
