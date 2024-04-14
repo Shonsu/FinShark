@@ -64,7 +64,7 @@ namespace api.Controllers
             var commentModel = commentRequestDto.ToComment(commentId);
 
             var comment = await _commentRepo.CreateAsync(commentModel);
-            return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment.ToCommentDto());
+            return CreatedAtAction(nameof(GetById), new { commentId = comment.Id }, comment.ToCommentDto());
         }
 
         [HttpPut("{commentId:int}")]
