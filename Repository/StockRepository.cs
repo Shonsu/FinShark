@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using api.Controllers;
 using api.Data;
@@ -54,6 +55,10 @@ namespace api.Repository
             {
                 System.Console.WriteLine("query symbol: {0}", query.Symbol);
                 stocks = stocks.Where(s => s.Symbol.Contains(query.Symbol));
+            }
+            if (!string.IsNullOrWhiteSpace(query.SortBy))
+            {
+                stocks = stocks.OrderByDynamic(query.SortBy, !query.IsDescending ? "ASC" : "DESC");
             }
             return await stocks.ToListAsync();
         }
