@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using api.Controllers.Dto.Account;
 using api.Interfaces;
 using api.Models;
@@ -16,10 +12,12 @@ namespace api.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
-        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService)
+        private readonly SignInManager<AppUser> _signInManager;
+        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            _signInManager = signInManager;
         }
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
@@ -63,5 +61,30 @@ namespace api.Controllers
                 return StatusCode(500, e);
             }
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDto loginDto)
+        {
+            var user = _userManager.Users.FirstOrDefault(x => String.Equals(x.UserName, loginDto.Username, StringComparison.OrdinalIgnoreCase));
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+            if (!result.Succeeded)
+            {
+                return Unauthorized();
+            }
+
+            var newUser = new NewUserDto
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Token = _tokenService.CreateToken(user)
+            };
+            return Ok(newUser);
+        }
+
     }
 }
