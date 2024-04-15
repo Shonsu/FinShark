@@ -29,5 +29,24 @@ namespace api.Repository
                 MarketCap = stock.Stock.MarketCap
             }).ToListAsync();
         }
+
+        public async Task<Portfolio> CreateAsync(Portfolio portfolio)
+        {
+            await _context.Portfolios.AddAsync(portfolio);
+            await _context.SaveChangesAsync();
+            return portfolio;
+        }
+
+        public async Task<Portfolio> DeleteAsync(AppUser appUser, string symbol)
+        {
+            Portfolio? portfolio = await _context.Portfolios.FirstOrDefaultAsync(s => s.AppUserId == appUser.Id && s.Stock.Symbol == symbol);
+            if (portfolio == null)
+            {
+                return null;
+            }
+            _context.Portfolios.Remove(portfolio);
+            await _context.SaveChangesAsync();
+            return portfolio;
+        }
     }
 }
