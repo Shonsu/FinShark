@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using api.Data;
 using api.Dto.Comment;
+using api.Extensions;
 using api.Interfaces;
 using api.Mappers;
+using api.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace api.Controllers
 {
@@ -17,10 +16,12 @@ namespace api.Controllers
     {
         private readonly ICommentRepository _commentRepo;
         private readonly IStockRepository _stockRepo;
-        public CommentController(ICommentRepository commentRepo, IStockRepository stockRepo)
+        private readonly UserManager<AppUser> _userManager;
+        public CommentController(ICommentRepository commentRepo, IStockRepository stockRepo, UserManager<AppUser> userManager)
         {
             _commentRepo = commentRepo;
             _stockRepo = stockRepo;
+            _userManager = userManager;
         }
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -30,7 +31,7 @@ namespace api.Controllers
             return Ok(commentDtos);
         }
 
-        [HttpGet("{commentId:int}")]
+        [HttpGet("{commentID:int}")]
         public async Task<IActionResult> GetById(int commentId)
         {
             var comment = await _commentRepo.GetByIdAsync(commentId);
@@ -41,15 +42,20 @@ namespace api.Controllers
             return Ok(comment.ToCommentDto());
         }
 
-        [HttpPost("{commentId:int}")]
-        public async Task<IActionResult> Create([FromRoute] int commentId,
+        [HttpPost("{stockId:int}")]
+        [Authorize]
+        public async Task<IActionResult> Create([FromRoute] int stockId,
          [FromBody] CreateCommentRequestDto commentRequestDto)
         {
-            if (!await _stockRepo.StockExist(commentId))
+            if (!await _stockRepo.StockExist(stockId))
             {
                 return BadRequest("Stock does not exist");
             }
-            var commentModel = commentRequestDto.ToComment(commentId);
+            var commentModel = commentRequestDto.ToComment(stockId);
+
+            var userEmail = User.GetEmail();
+            var appUser = await _userManager.FindByEmailAsync(userEmail);
+            commentModel.AppUserId = appUser.Id;
 
             var comment = await _commentRepo.CreateAsync(commentModel);
             return CreatedAtAction(nameof(GetById), new { commentId = comment.Id }, comment.ToCommentDto());

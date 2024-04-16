@@ -39,7 +39,7 @@ namespace api.Repository
 
         public async Task<PagedList<Stock>> GetAllAsync(QueryStockObject query)
         {
-            IQueryable<Stock> stocks = _context.Stocks.Include(s => s.Comments).AsNoTracking().AsQueryable();
+            IQueryable<Stock> stocks = _context.Stocks.Include(s => s.Comments).ThenInclude(s => s.appUser).AsNoTracking().AsQueryable();
             if (!string.IsNullOrWhiteSpace(query.CompanyName))
             {
                 stocks = stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
